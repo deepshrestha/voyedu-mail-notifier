@@ -95,7 +95,7 @@ const watcher = chokidar.watch('./uploads')
 watcher
   .on('add', async path => {
     const customer = new Customer({
-      booking_id: path.split("\\")[2]
+      booking_id: path.split("\\")[2] ? path.split("\\")[2]: path.split("/")[2]
     });
     Customer.findByBookingId(customer, async (err, email) => {
       if(err) {
