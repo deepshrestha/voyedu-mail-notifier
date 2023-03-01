@@ -4,12 +4,12 @@ const fs = require('fs');
 
 // create reusable transporter object using the default SMTP transport
 var smtpConfig = {
-  host: "smtp.gmail.com",
-  port: 465,
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
   secure: true, // use SSL
   auth: {
-    user: "pranayamailtester@gmail.com",
-    pass: "afpmedtpxiavieso",
+    user: process.env.SMTP_USERNAME,
+    pass: process.env.SMTP_PASSWORD,
   },
 };
 var transporter = nodemailer.createTransport(smtpConfig);
@@ -37,6 +37,7 @@ exports.sendAppointmentEmail = (data) => {
     // send mail with defined transport object
     transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
+        console.log(error);
         // res.status(500).send({"message" : "An error has occurred while sending email"});
         console.log("An error has occurred while sending email")
         resolve(false);
@@ -69,6 +70,7 @@ exports.sendInvoiceEmail = (email, path) => {
     transporter.sendMail(mailOptions, async function (error, info) {
       if (error) {
         // res.status(500).send({"message" : "An error has occurred while sending email"});
+        console.log(error);
         console.log("An error has occurred while sending email")
         resolve(false);
       }
