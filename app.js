@@ -2,6 +2,7 @@ require('dotenv').config()
 const chokidar = require('chokidar');
 const express = require('express');
 const path = require("path")
+const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
 const { promisify } = require('util')
@@ -13,6 +14,22 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const domainsFromEnv = process.env.CORS_DOMAINS || ""
+
+const whitelist = domainsFromEnv.split(",").map(item => item.trim())
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  credentials: true,
+}
+app.use(cors(corsOptions))
 
 // View Engine Setup
 app.set("views",path.join(__dirname,"views"))
@@ -53,19 +70,20 @@ var upload = multer({
         cb("Error: File upload only supports the "
                 + "following filetypes - " + filetypes);
       } 
-}).single("invoice"); 
+}).single("invoice")/* .array("uploadedFiles") */; 
 
 app.use(upload); 
 
 app.post('/email-api/invoice', (req, res) => {
+  console.log(req.body)
   upload(req, res, function (err) {
-    /* if(err) {
+    if(err) {
       console.log("error", err)
       res.send(err)
     }
     else {
       res.send("Success, Image uploaded!")
-    } */
+    }
   })
   // res.json({message: req.body})
 });
@@ -93,9 +111,9 @@ app.post('/email-api/appointment', (req, res) => {
 const watcher = chokidar.watch('./uploads')
 
 watcher
-  .on('add', async path => {
+  .on('add', async filePath => {
     const customer = new Customer({
-      booking_id: path.split("\\")[2] ? path.split("\\")[2]: path.split("/")[2]
+      booking_id: filePath.split("\\")[2] ? filePath.split("\\")[2]: filePath.split("/")[2]
     });
     Customer.findByBookingId(customer, async (err, email) => {
       if(err) {
@@ -110,12 +128,13 @@ watcher
             break;
         }
       } else {
-        let mailSuccess = await sendInvoiceEmail(email, path)
+        let mailSuccess = await sendInvoiceEmail(email, filePath)
         if(mailSuccess) {
-          // fs.unlink(path, (err) => {
+          // fs.unlink(filePath, (err) => {
           //   if (err) throw err //handle your error the way you want to;
           // });
-          await unlinkAsync(path)
+          await unlinkAsync(filePath)
+          /* await unlinkAsync(path.join(filePath, '../')) */ /* not working */
           console.log("finished")
         }
       }
