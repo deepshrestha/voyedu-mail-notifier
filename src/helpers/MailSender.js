@@ -29,7 +29,7 @@ exports.sendAppointmentEmail = (data) => {
     mailOptions.to = process.env.SERVICE_PROVIDER_EMAIL;
     mailOptions.subject = `Regarding booking appointment`;
     mailOptions.html = `<div> Dear user, <br/><br/> 
-      A new booking appointment has been created for date <strong>${data.date}</strong> at <strong>${data.time}</strong> 
+      A new booking appointment has been requested for the date <strong>${data.date}</strong> at <strong>${data.time}</strong>. Please check. 
       <br/>
 
       Thank you. <br/><br/> Regards, <br/>Voyedu
