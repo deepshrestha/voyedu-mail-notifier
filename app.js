@@ -78,11 +78,8 @@ app.post('/email-api/invoice', (req, res) => {
   console.log(req.body)
   upload(req, res, function (err) {
     if(err) {
-      res.status(500).send({
-        success: false,
-        message:
-            err.message || "Some error occurred."
-      });
+      console.log("error", err)
+      res.send(err)
     }
     else {
       res.send("Success, Image uploaded!")
@@ -98,11 +95,12 @@ app.post('/email-api/appointment', (req, res) => {
 
   Booking.getAppointmentDetails(booking, async (err, data) => {
     if (err)
-        res.status(500).send({
+        /* res.status(500).send({
             success: false,
             message:
                 err.message || "Some error occurred."
-        });
+        }); */
+        res.send(err)
     else {
       let isEmailSent = await sendAppointmentEmail(data);
       if(isEmailSent) res.send({success: true, "message": "Success" });
