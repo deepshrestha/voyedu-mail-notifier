@@ -78,8 +78,11 @@ app.post('/email-api/invoice', (req, res) => {
   console.log(req.body)
   upload(req, res, function (err) {
     if(err) {
-      console.log("error", err)
-      res.send(err)
+      res.status(500).send({
+        success: false,
+        message:
+            err.message || "Some error occurred."
+      });
     }
     else {
       res.send("Success, Image uploaded!")
